@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    modularity.inferModulePath = true
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.addAll(['-Xlint:all', '-Xlint:-missing-explicit-ctor', '-Werror'])
+}
+
+// Hide 'init' and 'wrapper' tasks in "gradle tasks" output,
+// since we don't expect anyone to run them.
+subprojects {
+    init.group = null
+    wrapper.group = null
+}
+
+//
+// Javadoc
+//
+javadoc.enabled = false

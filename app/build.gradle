@@ -1,0 +1,39 @@
+plugins {
+    id 'java-conventions'
+    id 'javafx-conventions'
+    id 'application'
+    id 'jpackage-conventions'
+}
+
+application {
+    mainModule = 'app'
+    mainClass = 'app.AppMain'
+    applicationDefaultJvmArgs = [
+            '-Xmx1g',
+            '-Djava.security.manager=disallow',
+            //'-Djavafx.animation.framerate=1',
+            '-Dprism.maxvram=4g',
+            //'-Dquantum.debug=true',
+            //'-Dquantum.pulsedebug=true',
+            '-Dfile.encoding=UTF-8'
+    ]
+}
+startScripts.enabled = false
+installDist.enabled = false
+distTar.enabled = false
+distZip.enabled = false
+
+// Hide disabled application tasks in "gradle tasks" output,
+// since we don't expect anyone to run them.
+assembleDist.group = null
+distTar.group = null
+distZip.group = null
+installDist.group = null
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'app/app.AppMain'
+        )
+    }
+}

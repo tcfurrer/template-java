@@ -1,0 +1,123 @@
+def JavaFXversion = '21.0.1'
+def jmodsDir = new File(layout.buildDirectory.get().asFile.path+"/jmods")
+
+tasks.register('cleanJMods', Delete)
+{
+    delete jmodsDir
+}
+tasks.register('downloadJMods')
+{
+    doLast {
+        if (!jmodsDir.exists()) {
+            def filename = "openjfx-${JavaFXversion}_windows-x64_bin-jmods.zip"
+            def zipFile = new File("${jmodsDir}/${filename}")
+            jmodsDir.mkdirs()
+            println "Downloading JavaFX jmods..."
+            new URI("https://download2.gluonhq.com/openjfx/${JavaFXversion}/${filename}")
+                    .toURL()
+                    .withInputStream{ i -> zipFile.withOutputStream{ it << i }}
+            copy {
+                from zipTree(zipFile)
+                into jmodsDir
+            }
+            delete zipFile
+        }
+    }
+}
+
+tasks.register('cleanJlink', Delete) {
+    description 'Cleans the app image created by jlink task'
+    doFirst {
+        if (file(layout.buildDirectory.get().asFile.path + "/image").exists()) {
+            ant.attrib(readonly: false) {
+                fileset(dir: layout.buildDirectory.get().asFile.path + "/image")
+            }
+        }
+        delete layout.buildDirectory.get().asFile.path + "/image"
+    }
+}
+clean.dependsOn cleanJlink
+tasks.register('jlink', Exec) {
+    dependsOn jar
+    description 'Build an executable'
+    dependsOn cleanJlink
+    dependsOn downloadJMods
+    def projectDependencies = project.configurations.runtimeClasspath.getAllDependencies().withType(ProjectDependency)
+    def dependentProjects = projectDependencies*.dependencyProject
+    def dependentProjectsWithJars = dependentProjects.findAll { it.hasProperty('jar') }
+    def dependentProjectJarFiles = dependentProjectsWithJars.collect { it.jar.destinationDirectory.asFile.get() }
+    def dependentProjectLibPaths = dependentProjectsWithJars.collect { it.repositories.collect { it.dirs.collect { it as String } } }.flatten().findAll { it.contains('main') && !it.contains('codeCoverageReport') }
+    commandLine System.properties['java.home'] + '/bin/jlink',
+            '--module-path', System.properties['java.home'] + '/jmods' + ';' \
+                              + (jar.destinationDirectory.asFile.get() as String) + ';' \
+                              + jmodsDir + "/javafx-jmods-${JavaFXversion}" + ';' \
+                              + dependentProjectJarFiles.join(';') + ';' \
+                              + dependentProjectLibPaths.join(';'),
+            '--add-modules', 'app',
+            '--output', layout.buildDirectory.get().asFile.path+"/image",
+            '--bind-services',
+            '--strip-debug',
+            '--no-man-pages',
+            '--no-header-files'
+}
+
+tasks.register('cleanJpackage', Delete) {
+    description 'Cleans the app image created by jpackage task'
+    doFirst {
+        delete layout.buildDirectory.get().asFile.path + "/app-image"
+        if (file(layout.buildDirectory.get().asFile.path + "/tmp/jpackage").exists()) {
+            ant.attrib(readonly: false) {
+                fileset(dir: layout.buildDirectory.get().asFile.path + "/tmp/jpackage")
+            }
+        }
+        delete layout.buildDirectory.get().asFile.path + "/tmp/jpackage"
+    }
+}
+clean.dependsOn cleanJpackage
+tasks.register('jpackage', Exec) {
+    dependsOn jar
+    description 'Build an installation package'
+    dependsOn cleanJpackage
+    dependsOn downloadJMods
+    def projectDependencies = project.configurations.runtimeClasspath.getAllDependencies().withType(ProjectDependency)
+    def dependentProjectsWithJars = projectDependencies.findAll { it.hasProperty('jar') }
+    def dependentProjectJarFiles = dependentProjectsWithJars.collect { it.jar.destinationDirectory.asFile.get() }
+    def dependentProjectLibPaths = dependentProjectsWithJars.collect { it.repositories.collect { it.dirs.collect { it as String } } }.flatten().findAll { it.contains('main') && !it.contains('codeCoverageReport') }
+    commandLine System.properties['java.home'] + '/bin/jpackage',
+            '--name', 'Template-JavaFX',
+            '--temp', layout.buildDirectory.get().asFile.path+"/tmp/jpackage",
+            '--module', 'app',
+            '--module-path', System.properties['java.home'] + '/jmods' + ';' \
+                              + (jar.destinationDirectory.asFile.get() as String) + ';' \
+                              + jmodsDir + "/javafx-jmods-${JavaFXversion}" + ';' \
+                              + dependentProjectJarFiles.join(';') + ';' \
+                              + dependentProjectLibPaths.join(';'),
+            '--input', jar.destinationDirectory.asFile.get() as String,
+            '--jlink-options', '--bind-services --strip-native-commands --strip-debug --no-man-pages --no-header-files',
+            '--java-options', '-Xmx100m',
+            '--dest', layout.buildDirectory.get().asFile.path+"/app-image",
+            '--description', 'Template JavaFX Project',
+            //'--about-url', 'TBD-url',
+            //'--file-associations', 'TBD',
+            '--vendor', 'TCF',
+            '--copyright', 'TBD',
+            //'--license-file', 'TBD',
+            //TBD: '--icon', 'template-javafx.ico',
+            '--type', 'msi', // value of 'app-image' here can be used for debugging purposes
+            '--app-version', '1.0', //TBD: need to require cmdline property for this (instead of hardcoding value)
+            '--win-per-user-install', //TBD: omit on linux
+            // '--win-menu'
+            '--win-menu-group', 'JavaProjects', //TBD: omit on linux
+            '--win-shortcut', //TBD: omit on linux
+            '--win-shortcut-prompt',
+            '--win-upgrade-uuid', '14334141-bf6c-4d39-afd7-e6b9aed6028f'
+    //TBD: for non-gui app on windows: '--win-console'
+    // '--win-dir-chooser'
+    // '--win-help', 'TBD-url'
+    // '--win-update-url', 'TBD-url'
+
+    doFirst {
+        println "Generating application installable..."
+        mkdir layout.buildDirectory.get().asFile.path+"/tmp/jpackage"
+    }
+}

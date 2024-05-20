@@ -1,0 +1,21 @@
+# Gradle
+.gradle
+gradle-app.setting
+.gradletasknamecache
+
+# Build output
+**/build/
+!src/**/build
+out
+
+# Auto-downloaded jmods
+jmods
+
+# IDEA
+.idea/workspace.xml
+.idea/jarRepositories.xml
+**/*.iml
+
+# Emacs litter
+*~
+.#*

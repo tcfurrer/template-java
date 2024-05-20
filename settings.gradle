@@ -1,0 +1,12 @@
+import java.nio.file.Files
+
+rootProject.name = 'template-javafx'
+
+// Automatically include subprojects from any subdirectory containing a build.gradle file.
+rootDir.eachFile { dir ->
+    if (Files.isDirectory(dir.toPath())
+            && Files.exists(dir.toPath().resolve('build.gradle'))
+            && !['buildSrc'].contains(dir.name)) {
+        include dir.name
+    }
+}

@@ -1,0 +1,46 @@
+tasks.register('cleanAllJavadoc', Delete) {
+    description = 'Cleans unified javadoc outputs'
+    delete layout.buildDirectory.get().asFile.path+"/javadoc" as File
+    delete layout.buildDirectory.get().asFile.path+"/docs" as File
+}
+clean.dependsOn cleanAllJavadoc
+tasks.register('allJavadoc', Javadoc) {
+    description = 'Generates a global javadoc from all the modules'
+    title = 'Template JavaFX Project Documentation'
+    failOnError = true
+    // TODO: distribute this, instead of hardcoding list here
+    def projectsToDocument = [
+            project(':app')
+    ]
+    dependsOn projectsToDocument.collect { project -> project.getTasksByName('classes', true) }
+    source projectsToDocument.collect { [it.sourceSets.main.java] }
+    classpath = files(projectsToDocument.collect { it.sourceSets.main.compileClasspath })
+    destinationDir = layout.buildDirectory.get().asFile.path+"/docs/javadoc" as File
+    options.links 'https://docs.oracle.com/en/java/javase/21/docs/api/'
+    options.addStringOption('-module-source-path', './*/src/main/java/')
+    options.addStringOption('-show-packages', 'all')
+    options.addStringOption('-show-module-contents', 'all')
+    options.addStringOption('-show-types', 'public')
+    options.addStringOption('-show-members', 'public')
+    options.addBooleanOption('Xdoclint:-missing', true)
+    options.addBooleanOption('Werror', true)
+    options.addBooleanOption('javafx', true)
+    options.addBooleanOption('html5', true)
+    options.addBooleanOption('use', true)
+    options.addStringOption('link', 'https://docs.oracle.com/en/java/javase/21/docs/api/')
+
+    doLast {
+        projectsToDocument.each { p ->
+            copy {
+                from "${p.projectDir}/src/main/docs"
+                into layout.buildDirectory.get().asFile.path+"/javadoc/${p.name}" as File
+            }
+        }
+    }
+}
+
+tasks.register('showAllJavadoc', BrowserLaunch) {
+    dependsOn allJavadoc
+    description = 'Launch default browser on the unified javadoc output index page'
+    htmlFilePath = layout.buildDirectory.get().asFile.path+"/docs/javadoc/index.html"
+}

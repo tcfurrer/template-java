@@ -1,0 +1,11 @@
+#topPane
+{
+  -fx-background: lightgray;
+}
+
+#label
+{
+  -fx-text-fill: green;
+  -fx-font-size: 2em;
+  -fx-font-weight: bold;
+}
