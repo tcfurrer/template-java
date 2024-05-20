@@ -8,9 +8,6 @@ gradle-app.setting
 !src/**/build
 out
 
-# Auto-downloaded jmods
-jmods
-
 # IDEA
 .idea/workspace.xml
 .idea/jarRepositories.xml

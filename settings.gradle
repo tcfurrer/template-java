@@ -1,6 +1,10 @@
 import java.nio.file.Files
 
-rootProject.name = 'template-javafx'
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
+
+rootProject.name = 'template-java'
 
 // Automatically include subprojects from any subdirectory containing a build.gradle file.
 rootDir.eachFile { dir ->
