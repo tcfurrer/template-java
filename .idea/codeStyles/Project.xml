@@ -1,0 +1,30 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <JavaCodeStyleSettings>
+      <option name="INSERT_INNER_CLASS_IMPORTS" value="true" />
+      <option name="PACKAGES_TO_USE_IMPORT_ON_DEMAND">
+        <value>
+          <package name="java.nio.file" withSubpackages="false" static="false" />
+          <package name="java.io" withSubpackages="false" static="false" />
+          <package name="java.util" withSubpackages="true" static="false" />
+          <package name="org.junit.jupiter.api" withSubpackages="true" static="false" />
+          <package name="java.util.Collections" withSubpackages="false" static="true" />
+          <package name="java.util.stream.Collectors" withSubpackages="false" static="true" />
+          <package name="org.hamcrest.Matchers" withSubpackages="false" static="true" />
+          <package name="org.testfx.api" withSubpackages="false" static="true" />
+        </value>
+      </option>
+      <option name="IMPORT_LAYOUT_TABLE">
+        <value>
+          <package name="" withSubpackages="true" static="false" />
+          <package name="javax" withSubpackages="true" static="false" />
+          <package name="java" withSubpackages="true" static="false" />
+          <package name="" withSubpackages="true" static="true" />
+        </value>
+      </option>
+    </JavaCodeStyleSettings>
+    <codeStyleSettings language="JAVA">
+      <option name="KEEP_BLANK_LINES_BETWEEN_PACKAGE_DECLARATION_AND_HEADER" value="0" />
+    </codeStyleSettings>
+  </code_scheme>
+</component>

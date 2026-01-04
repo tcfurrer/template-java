@@ -1,0 +1,28 @@
+# Gradle
+.gradle
+gradle-app.setting
+.gradletasknamecache
+.kotlin
+
+# Build output
+**/build/
+**/dist/
+!src/**/build
+out
+
+# IDEA
+.idea/workspace.xml
+.idea/jarRepositories.xml
+.idea/copilot*
+.idea/gradle.xml
+.idea/vcs.xml
+.idea/compiler.xml
+.idea/modules.xml
+.idea/kotlinc.xml
+.idea/misc.xml
+.idea/libraries/*
+**/*.iml
+
+# Emacs litter
+*~
+.#*
